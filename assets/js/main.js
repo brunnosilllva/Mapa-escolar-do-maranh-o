@@ -44,6 +44,7 @@ class CensoEscolarApp {
                 'data/excel/dados_censo_escolar.xlsx', 'Análise - Tabela da lista'
             );
             
+            // Arquivo GPKG do IBGE (será convertido para GeoJSON)
             const geojsonPromise = this.dataLoader.loadGeojsonFromPath(
                 'data/geojson/maranhao_municipios.geojson'
             );
@@ -71,6 +72,35 @@ class CensoEscolarApp {
         } catch (error) {
             console.error('Erro ao carregar dados padrão:', error);
             this.updateStatus(`Erro: ${error.message}`, 'error');
+            
+            // Mostrar instruções específicas para GPKG
+            if (error.message.includes('GeoPackage') || error.message.includes('gpkg')) {
+                this.showGpkgInstructions();
+            }
+        }
+    }
+
+    showGpkgInstructions() {
+        const instructionsHtml = `
+            <div style="background: rgba(255,255,255,0.95); padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #ff9800;">
+                <h4>📋 Instruções para usar arquivo GPKG:</h4>
+                <ol style="margin: 10px 0; padding-left: 20px;">
+                    <li>Baixe o QGIS (software gratuito): <a href="https://qgis.org" target="_blank">qgis.org</a></li>
+                    <li>Abra o arquivo .gpkg no QGIS</li>
+                    <li>Clique com botão direito na camada → Exportar → Salvar Features Como</li>
+                    <li>Escolha formato "GeoJSON" e salve como "maranhao_municipios.geojson"</li>
+                    <li>Coloque o arquivo na pasta: <code>data/geojson/maranhao_municipios.geojson</code></li>
+                </ol>
+                <p><strong>Ou use o comando:</strong></p>
+                <code style="background: #f0f0f0; padding: 5px; border-radius: 3px;">
+                    ogr2ogr -f GeoJSON maranhao_municipios.geojson Malha_territorial_IBGE.gpkg
+                </code>
+            </div>
+        `;
+        
+        const container = document.querySelector('.main-content');
+        if (container) {
+            container.insertAdjacentHTML('beforeend', instructionsHtml);
         }
     }
 
@@ -106,22 +136,31 @@ class CensoEscolarApp {
         if (!file) return;
 
         try {
-            this.updateStatus('Carregando GeoJSON personalizado...', 'loading');
+            this.updateStatus('Carregando arquivo geográfico...', 'loading');
             
-            const text = await file.text();
-            this.geojsonData = JSON.parse(text);
+            const extension = file.name.split('.').pop().toLowerCase();
+            
+            if (extension === 'gpkg') {
+                // Mostrar aviso sobre GPKG
+                this.updateStatus('Arquivo GPKG detectado. Conversão necessária.', 'warning');
+                this.showGpkgInstructions();
+                return;
+            }
+            
+            const geojsonData = await this.dataLoader.loadGeojsonFile(file);
+            this.geojsonData = geojsonData;
 
             if (this.dadosGerais.length > 0) {
                 this.renderMainMap();
                 this.updateStatistics();
-                this.updateStatus('GeoJSON personalizado carregado!', 'success');
+                this.updateStatus('Arquivo geográfico carregado!', 'success');
             } else {
-                this.updateStatus('GeoJSON carregado. Carregue também o Excel.', 'warning');
+                this.updateStatus('Arquivo carregado. Carregue também o Excel.', 'warning');
             }
 
         } catch (error) {
-            console.error('Erro ao carregar GeoJSON:', error);
-            this.updateStatus(`Erro no GeoJSON: ${error.message}`, 'error');
+            console.error('Erro ao carregar arquivo geográfico:', error);
+            this.updateStatus(`Erro: ${error.message}`, 'error');
         }
     }
 
