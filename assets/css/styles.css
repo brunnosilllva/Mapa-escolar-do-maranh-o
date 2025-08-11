@@ -1,1 +1,736 @@
+/* assets/css/styles.css */
 
+/* ===== VARIÁVEIS CSS ===== */
+:root {
+    --primary-color: #667eea;
+    --secondary-color: #764ba2;
+    --success-color: #4caf50;
+    --warning-color: #ff9800;
+    --danger-color: #f44336;
+    --info-color: #2196f3;
+    --dark-color: #333;
+    --light-color: #f8f9fa;
+    --border-radius: 8px;
+    --box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    --box-shadow-hover: 0 5px 20px rgba(0,0,0,0.15);
+    --transition: all 0.3s ease;
+    --glassmorphism: rgba(255, 255, 255, 0.95);
+    --backdrop-blur: blur(10px);
+}
+
+/* ===== RESET E BASE ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    min-height: 100vh;
+    color: var(--dark-color);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* ===== LAYOUT PRINCIPAL ===== */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+}
+
+/* ===== CABEÇALHO ===== */
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    color: white;
+    position: relative;
+}
+
+.header .logo {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 15px;
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    font-weight: 400;
+}
+
+/* ===== CONTROLES ===== */
+.controls {
+    margin-bottom: 25px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.file-controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.separator {
+    color: white;
+    font-weight: 600;
+    opacity: 0.8;
+    margin: 0 10px;
+}
+
+/* ===== BOTÕES ===== */
+.btn-primary {
+    padding: 12px 24px;
+    background: linear-gradient(45deg, var(--success-color), #66bb6a);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: var(--transition);
+    box-shadow: var(--box-shadow);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--box-shadow-hover);
+    filter: brightness(1.1);
+}
+
+.btn-secondary {
+    padding: 10px 20px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: var(--transition);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-secondary:hover {
+    background: #5a6fd8;
+    transform: translateY(-2px);
+    box-shadow: var(--box-shadow);
+}
+
+.back-button {
+    margin-bottom: 20px;
+    padding: 12px 24px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.back-button:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: var(--box-shadow);
+}
+
+/* ===== STATUS ===== */
+.status {
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 200px;
+}
+
+.status.loading {
+    background: rgba(255, 243, 205, 0.9);
+    color: #856404;
+    border: 1px solid rgba(255, 193, 7, 0.5);
+}
+
+.status.success {
+    background: rgba(209, 237, 255, 0.9);
+    color: #0c5460;
+    border: 1px solid rgba(23, 162, 184, 0.5);
+}
+
+.status.error {
+    background: rgba(248, 215, 218, 0.9);
+    color: #721c24;
+    border: 1px solid rgba(220, 53, 69, 0.5);
+}
+
+.status.warning {
+    background: rgba(255, 243, 205, 0.9);
+    color: #856404;
+    border: 1px solid rgba(255, 193, 7, 0.5);
+}
+
+.status.info {
+    background: rgba(209, 237, 255, 0.9);
+    color: #0c5460;
+    border: 1px solid rgba(23, 162, 184, 0.5);
+}
+
+/* ===== CONTEÚDO PRINCIPAL ===== */
+.main-content {
+    display: flex;
+    gap: 25px;
+    min-height: 70vh;
+}
+
+.map-container {
+    flex: 2;
+    background: var(--glassmorphism);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: var(--box-shadow-hover);
+    backdrop-filter: var(--backdrop-blur);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sidebar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.legend, .statistics, .municipio-stats {
+    background: var(--glassmorphism);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: var(--box-shadow-hover);
+    backdrop-filter: var(--backdrop-blur);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.legend h3, .statistics h3, .municipio-stats h3 {
+    color: var(--dark-color);
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+    border-bottom: 3px solid var(--primary-color);
+    padding-bottom: 10px;
+    font-weight: 700;
+}
+
+/* ===== LEGENDA ===== */
+.legend-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 10px;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.legend-item:hover {
+    background: rgba(102, 126, 234, 0.1);
+    transform: translateX(5px);
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+}
+
+/* ===== ESTATÍSTICAS ===== */
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--primary-color);
+}
+
+.stat-label {
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 16px;
+    color: var(--dark-color);
+    font-weight: 700;
+}
+
+/* ===== MAPA ===== */
+#map {
+    width: 100%;
+    height: 100%;
+    min-height: 500px;
+}
+
+.municipio {
+    cursor: pointer;
+    stroke: #fff;
+    stroke-width: 1;
+    transition: var(--transition);
+}
+
+.municipio:hover {
+    stroke: #333;
+    stroke-width: 2;
+    filter: brightness(1.1);
+}
+
+/* ===== LOADING ===== */
+.loading-animation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    flex-direction: column;
+    color: var(--primary-color);
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(102, 126, 234, 0.2);
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ===== TOOLTIP ===== */
+.tooltip {
+    position: absolute;
+    padding: 20px;
+    background: var(--glassmorphism);
+    border: none;
+    border-radius: 15px;
+    box-shadow: var(--box-shadow-hover);
+    pointer-events: none;
+    font-size: 13px;
+    max-width: 320px;
+    z-index: 1000;
+    backdrop-filter: var(--backdrop-blur);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.tooltip h4 {
+    color: var(--dark-color);
+    margin-bottom: 15px;
+    font-size: 18px;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 8px;
+    font-weight: 700;
+}
+
+.tooltip-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.tooltip-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 10px;
+    background: rgba(102, 126, 234, 0.08);
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.tooltip-item span {
+    color: #666;
+}
+
+.tooltip-item strong {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.btn-detalhes {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: var(--transition);
+}
+
+.btn-detalhes:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* ===== PÁGINA DE DETALHES ===== */
+.municipio-detalhes {
+    animation: fadeIn 0.5s ease-in;
+}
+
+.escolas-map {
+    height: 500px;
+    background: white;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid rgba(102, 126, 234, 0.1);
+}
+
+.escola-marker {
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.escola-marker:hover {
+    filter: brightness(1.2);
+}
+
+/* ===== POPUP DA ESCOLA ===== */
+.escola-popup {
+    position: absolute;
+    padding: 25px;
+    background: var(--glassmorphism);
+    border-radius: 15px;
+    box-shadow: var(--box-shadow-hover);
+    max-width: 420px;
+    max-height: 70vh;
+    overflow-y: auto;
+    z-index: 1000;
+    backdrop-filter: var(--backdrop-blur);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.escola-popup h4 {
+    color: var(--dark-color);
+    margin-bottom: 20px;
+    font-size: 20px;
+    border-bottom: 3px solid var(--primary-color);
+    padding-bottom: 10px;
+    font-weight: 700;
+}
+
+.escola-info {
+    display: grid;
+    gap: 12px;
+}
+
+.escola-info-item {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 14px;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--primary-color);
+}
+
+.escola-info-item label {
+    font-size: 11px;
+    color: #666;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.escola-info-item span {
+    font-size: 14px;
+    color: var(--dark-color);
+    font-weight: 500;
+    word-wrap: break-word;
+}
+
+/* ===== ANIMAÇÕES ===== */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+.slide-in {
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ===== SCROLLBAR PERSONALIZADA ===== */
+.escola-popup::-webkit-scrollbar {
+    width: 6px;
+}
+
+.escola-popup::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.1);
+    border-radius: 3px;
+}
+
+.escola-popup::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 3px;
+}
+
+.escola-popup::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-color);
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 1200px) {
+    .container {
+        max-width: 100%;
+        padding: 15px;
+    }
+    
+    .header h1 {
+        font-size: 2.2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .map-container {
+        height: 60vh;
+        min-height: 400px;
+        padding: 20px;
+    }
+    
+    .sidebar {
+        flex-direction: row;
+        overflow-x: auto;
+    }
+    
+    .legend, .statistics, .municipio-stats {
+        min-width: 280px;
+        padding: 20px;
+    }
+    
+    .tooltip-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .tooltip {
+        max-width: 280px;
+        padding: 15px;
+    }
+    
+    .escola-popup {
+        max-width: 90vw;
+        padding: 20px;
+    }
+    
+    .controls {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .file-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .header p {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .map-container {
+        padding: 15px;
+    }
+    
+    .legend, .statistics, .municipio-stats {
+        padding: 15px;
+    }
+    
+    .escola-popup {
+        max-width: 95vw;
+        padding: 15px;
+    }
+    
+    .tooltip {
+        max-width: 250px;
+        padding: 12px;
+    }
+    
+    .btn-primary, .btn-secondary {
+        padding: 10px 18px;
+        font-size: 13px;
+    }
+}
+
+/* ===== UTILITÁRIOS ===== */
+.text-center {
+    text-align: center;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.visible {
+    display: block !important;
+}
+
+/* ===== ESTADOS DE HOVER GLOBAIS ===== */
+.legend-item:hover,
+.stat-item:hover {
+    background: rgba(102, 126, 234, 0.1);
+    transform: translateX(3px);
+}
+
+/* ===== ACESSIBILIDADE ===== */
+.btn-primary:focus,
+.btn-secondary:focus,
+.back-button:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+.municipio:focus {
+    stroke: var(--primary-color);
+    stroke-width: 3px;
+    outline: none;
+}
+
+.escola-marker:focus {
+    stroke: var(--primary-color);
+    stroke-width: 3px;
+    outline: none;
+}
+
+/* ===== MODO ESCURO (opcional) ===== */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --dark-color: #f8f9fa;
+        --light-color: #333;
+        --glassmorphism: rgba(0, 0, 0, 0.8);
+    }
+    
+    body {
+        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    }
+    
+    .map-container,
+    .legend,
+    .statistics,
+    .municipio-stats {
+        background: rgba(0, 0, 0, 0.85);
+        color: white;
+    }
+    
+    .tooltip,
+    .escola-popup {
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+    }
+}
+
+/* ===== IMPRESSÃO ===== */
+@media print {
+    body {
+        background: white;
+        color: black;
+    }
+    
+    .controls,
+    .btn-primary,
+    .btn-secondary,
+    .back-button {
+        display: none;
+    }
+    
+    .main-content {
+        flex-direction: column;
+    }
+    
+    .map-container {
+        background: white;
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+    
+    .tooltip,
+    .escola-popup {
+        display: none;
+    }
+}
