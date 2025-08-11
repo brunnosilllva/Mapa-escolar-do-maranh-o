@@ -137,9 +137,16 @@ class CensoEscolarApp {
     }
 
     showTooltip(event, data, nomeMunicipio) {
-        const tooltip = d3.select('body').selectAll('.tooltip').data([null]);
-        const tooltipEnter = tooltip.enter().append('div').attr('class', 'tooltip');
-        const tooltipMerge = tooltipEnter.merge(tooltip);
+        // Remover tooltip anterior
+        d3.selectAll('.tooltip').remove();
+
+        const tooltip = d3.select('body').append('div')
+            .attr('class', 'tooltip')
+            .style('opacity', 0);
+
+        // Escapar aspas para evitar problemas no onclick
+        const cdMunEscaped = (data.CD_MUN || data.Municípios || '').toString().replace(/'/g, "\\'");
+        const nomeEscaped = (nomeMunicipio || data.Municípios || '').replace(/'/g, "\\'");
 
         const tooltipContent = `
             <h4>📍 ${nomeMunicipio || data.Municípios}</h4>
@@ -185,15 +192,33 @@ class CensoEscolarApp {
                     <strong>${this.formatNumber(data['Mais de 1000 matrículas de escolarização'])}</strong>
                 </div>
             </div>
-            <button class="btn-detalhes" onclick="App.showMunicipioDetailsFromTooltip('${data.CD_MUN || data.Municípios}', '${nomeMunicipio || data.Municípios}')">
+            <button class="btn-detalhes" onclick="window.App.showMunicipioDetailsFromTooltip('${cdMunEscaped}', '${nomeEscaped}')">
                 👁️ Ver detalhes das escolas
             </button>
         `;
 
-        tooltipMerge.html(tooltipContent)
-            .style('opacity', 1)
+        tooltip.html(tooltipContent)
             .style('left', (event.pageX + 10) + 'px')
             .style('top', (event.pageY - 10) + 'px');
+
+        // Mostrar com animação
+        tooltip.transition()
+            .duration(200)
+            .style('opacity', 1);
+
+        // Auto-esconder após um tempo ou ao mover o mouse para longe
+        setTimeout(() => {
+            const tooltipNode = tooltip.node();
+            if (tooltipNode) {
+                tooltipNode.addEventListener('mouseenter', () => {
+                    tooltip.style('opacity', 1);
+                });
+                
+                tooltipNode.addEventListener('mouseleave', () => {
+                    tooltip.transition().duration(200).style('opacity', 0).remove();
+                });
+            }
+        }, 100);
     }
 
     showMunicipioDetailsFromTooltip(cdMun, nomeMunicipio) {
@@ -435,12 +460,250 @@ class CensoEscolarApp {
             this.showMunicipioDetails(municipioData, nomeMunicipio);
         }
     }
+
+    // Método para encontrar dados do município (usado no tooltip)
+    findMunicipioData(cdMun) {
+        return this.dadosGerais.find(d => {
+            return d.CD_MUN == cdMun || 
+                   d['CD_MUN'] == cdMun ||
+                   d.Municípios === cdMun ||
+                   d.Municipios === cdMun;
+        });
+    }
+
+    // Método para limpar dados e resetar aplicação
+    clearData() {
+        this.dadosGerais = [];
+        this.dadosEscolas = [];
+        this.geojsonData = null;
+        this.municipioAtual = null;
+        
+        // Limpar interfaces
+        d3.select('#map').selectAll('*').remove();
+        document.getElementById('loading').style.display = 'flex';
+        document.getElementById('stats-content').innerHTML = '<div class="loading-animation"><p>Aguardando dados...</p></div>';
+        document.getElementById('legend-content').innerHTML = '<div class="loading-animation"><p>Aguardando dados...</p></div>';
+        
+        // Voltar para página principal se estiver em detalhes
+        if (document.getElementById('municipio-page').style.display !== 'none') {
+            this.voltarMapa();
+        }
+        
+        this.updateStatus('Dados limpos. Carregue novos arquivos.', 'info');
+    }
+
+    // Método para validar compatibilidade entre dados
+    validateDataCompatibility() {
+        if (!this.geojsonData || this.dadosGerais.length === 0) {
+            return { isValid: false, message: 'Dados insuficientes para validação' };
+        }
+
+        const municipiosExcel = this.dadosGerais.length;
+        const municipiosGeojson = this.geojsonData.features.length;
+        
+        let matched = 0;
+        let unmatched = [];
+
+        this.dadosGerais.forEach(municipio => {
+            const found = this.geojsonData.features.find(feature => 
+                feature.properties.CD_MUN == municipio.CD_MUN ||
+                feature.properties.NM_MUN === municipio.Municípios
+            );
+
+            if (found) {
+                matched++;
+            } else {
+                unmatched.push(municipio.Municípios || municipio.CD_MUN);
+            }
+        });
+
+        const matchPercentage = (matched / municipiosExcel) * 100;
+
+        return {
+            isValid: matchPercentage > 50, // Consideramos válido se > 50% dos municípios têm match
+            municipiosExcel,
+            municipiosGeojson,
+            matched,
+            matchPercentage: matchPercentage.toFixed(1),
+            unmatched: unmatched.slice(0, 5), // Primeiros 5 não encontrados
+            message: `${matched}/${municipiosExcel} municípios encontrados (${matchPercentage.toFixed(1)}%)`
+        };
+    }
+
+    // Método para exportar dados (funcionalidade futura)
+    exportData(format = 'json') {
+        if (this.dadosGerais.length === 0) {
+            this.updateStatus('Nenhum dado para exportar', 'warning');
+            return;
+        }
+
+        const exportData = {
+            metadata: {
+                exportDate: new Date().toISOString(),
+                totalMunicipios: this.dadosGerais.length,
+                totalEscolas: this.dadosEscolas.length
+            },
+            dadosGerais: this.dadosGerais,
+            dadosEscolas: this.dadosEscolas
+        };
+
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `censo_escolar_maranhao_${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        
+        URL.revokeObjectURL(url);
+        this.updateStatus('Dados exportados com sucesso!', 'success');
+    }
+
+    // Método para buscar município
+    searchMunicipio(searchTerm) {
+        if (!searchTerm || this.dadosGerais.length === 0) {
+            return [];
+        }
+
+        const term = searchTerm.toLowerCase().trim();
+        return this.dadosGerais.filter(municipio => 
+            (municipio.Municípios || '').toLowerCase().includes(term) ||
+            (municipio.CD_MUN || '').toString().includes(term)
+        ).slice(0, 10); // Limitar a 10 resultados
+    }
+
+    // Método para obter estatísticas gerais
+    getGeneralStatistics() {
+        if (this.dadosGerais.length === 0) {
+            return null;
+        }
+
+        const stats = {
+            totalMunicipios: this.dadosGerais.length,
+            totalEscolas: 0,
+            escolasPorTipo: {
+                estadual: 0,
+                municipal: 0,
+                federal: 0,
+                privada: 0
+            },
+            escolasPorPorte: {
+                ate50: 0,
+                de51a200: 0,
+                de201a500: 0,
+                de501a1000: 0,
+                mais1000: 0,
+                semMatricula: 0
+            }
+        };
+
+        this.dadosGerais.forEach(municipio => {
+            stats.totalEscolas += parseInt(municipio['Total de Escolas por município'] || 0);
+            stats.escolasPorTipo.estadual += parseInt(municipio.Estadual || 0);
+            stats.escolasPorTipo.municipal += parseInt(municipio.Municipal || 0);
+            stats.escolasPorTipo.federal += parseInt(municipio.Federal || 0);
+            stats.escolasPorTipo.privada += parseInt(municipio.Privada || 0);
+            
+            stats.escolasPorPorte.ate50 += parseInt(municipio['Até 50 matrículas de escolarização'] || 0);
+            stats.escolasPorPorte.de51a200 += parseInt(municipio['Entre 51 e 200 matrículas de escolarização'] || 0);
+            stats.escolasPorPorte.de201a500 += parseInt(municipio['Entre 201 e 500 matrículas de escolarização'] || 0);
+            stats.escolasPorPorte.de501a1000 += parseInt(municipio['Entre 501 e 1000 matrículas de escolarização'] || 0);
+            stats.escolasPorPorte.mais1000 += parseInt(municipio['Mais de 1000 matrículas de escolarização'] || 0);
+            stats.escolasPorPorte.semMatricula += parseInt(municipio['Escola sem matrícula de escolarização'] || 0);
+        });
+
+        return stats;
+    }
+
+    // Método para debug - logs detalhados
+    debugInfo() {
+        console.group('🔍 Debug Info - Censo Escolar App');
+        console.log('📊 Dados Gerais:', this.dadosGerais.length, 'municípios');
+        console.log('🏫 Dados Escolas:', this.dadosEscolas.length, 'escolas');
+        console.log('🗺️ GeoJSON:', this.geojsonData ? this.geojsonData.features.length + ' features' : 'não carregado');
+        console.log('📍 Município Atual:', this.municipioAtual);
+        
+        if (this.dadosGerais.length > 0) {
+            console.log('📋 Primeiros dados gerais:', this.dadosGerais[0]);
+        }
+        
+        if (this.dadosEscolas.length > 0) {
+            console.log('🏫 Primeira escola:', this.dadosEscolas[0]);
+        }
+        
+        if (this.geojsonData) {
+            console.log('🗺️ Primeira feature:', this.geojsonData.features[0]);
+        }
+
+        const validation = this.validateDataCompatibility();
+        console.log('✅ Validação:', validation);
+        
+        console.groupEnd();
+    }
 }
 
 // Inicializar aplicação quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', function() {
+    // Criar instância global da aplicação
     window.App = new CensoEscolarApp();
+    
+    // Adicionar eventos globais
+    window.addEventListener('beforeunload', function(e) {
+        // Limpar dados se necessário
+        if (window.App && typeof window.App.clearData === 'function') {
+            // App.clearData(); // Descomente se quiser limpar dados ao sair
+        }
+    });
+
+    // Event listener para teclas de atalho
+    document.addEventListener('keydown', function(e) {
+        // ESC para fechar popups
+        if (e.key === 'Escape') {
+            d3.selectAll('.tooltip').style('opacity', 0);
+            d3.selectAll('.escola-popup').remove();
+        }
+        
+        // Ctrl + D para debug info
+        if (e.ctrlKey && e.key === 'd') {
+            e.preventDefault();
+            if (window.App && typeof window.App.debugInfo === 'function') {
+                window.App.debugInfo();
+            }
+        }
+        
+        // Ctrl + E para exportar dados
+        if (e.ctrlKey && e.key === 'e') {
+            e.preventDefault();
+            if (window.App && typeof window.App.exportData === 'function') {
+                window.App.exportData();
+            }
+        }
+    });
+    
+    console.log('🚀 Censo Escolar App inicializado com sucesso!');
+    console.log('💡 Dicas:');
+    console.log('   - Ctrl+D: Debug info');
+    console.log('   - Ctrl+E: Exportar dados');
+    console.log('   - ESC: Fechar popups');
 });
 
-// Expor métodos globalmente para uso em HTML
-window.App = window.App || {};
+// Métodos auxiliares globais para compatibilidade
+window.showMunicipioDetails = function(municipioData, nomeMunicipio) {
+    if (window.App && typeof window.App.showMunicipioDetails === 'function') {
+        window.App.showMunicipioDetails(municipioData, nomeMunicipio);
+    }
+};
+
+window.findMunicipioData = function(cdMun) {
+    if (window.App && typeof window.App.findMunicipioData === 'function') {
+        return window.App.findMunicipioData(cdMun);
+    }
+    return null;
+};
+
+window.voltarMapa = function() {
+    if (window.App && typeof window.App.voltarMapa === 'function') {
+        window.App.voltarMapa();
+    }
+};
