@@ -310,4 +310,137 @@ class CensoEscolarApp {
             </div>
             <div class="stat-item">
                 <span class="stat-label">Privadas</span>
-                <span class="stat-value">${this.formatNumber(data.
+                <span class="stat-value">${this.formatNumber(data.Privada)}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Até 50 matrículas</span>
+                <span class="stat-value">${this.formatNumber(data['Até 50 matrículas de escolarização'])}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">51-200 matrículas</span>
+                <span class="stat-value">${this.formatNumber(data['Entre 51 e 200 matrículas de escolarização'])}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">201-500 matrículas</span>
+                <span class="stat-value">${this.formatNumber(data['Entre 201 e 500 matrículas de escolarização'])}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">501-1000 matrículas</span>
+                <span class="stat-value">${this.formatNumber(data['Entre 501 e 1000 matrículas de escolarização'])}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Mais de 1000</span>
+                <span class="stat-value">${this.formatNumber(data['Mais de 1000 matrículas de escolarização'])}</span>
+            </div>
+        `;
+
+        document.getElementById('municipio-stats-content').innerHTML = statsHtml;
+    }
+
+    loadDefaultLegend() {
+        const legendHtml = `
+            <div class="legend-item">
+                <div style="display: flex; align-items: center;">
+                    <div class="legend-color" style="background: #1a472a;"></div>
+                    <span>Mais de 100 escolas</span>
+                </div>
+            </div>
+            <div class="legend-item">
+                <div style="display: flex; align-items: center;">
+                    <div class="legend-color" style="background: #2d5a3d;"></div>
+                    <span>51 - 100 escolas</span>
+                </div>
+            </div>
+            <div class="legend-item">
+                <div style="display: flex; align-items: center;">
+                    <div class="legend-color" style="background: #4caf50;"></div>
+                    <span>26 - 50 escolas</span>
+                </div>
+            </div>
+            <div class="legend-item">
+                <div style="display: flex; align-items: center;">
+                    <div class="legend-color" style="background: #81c784;"></div>
+                    <span>11 - 25 escolas</span>
+                </div>
+            </div>
+            <div class="legend-item">
+                <div style="display: flex; align-items: center;">
+                    <div class="legend-color" style="background: #c8e6c9;"></div>
+                    <span>1 - 10 escolas</span>
+                </div>
+            </div>
+            <div class="legend-item">
+                <div style="display: flex; align-items: center;">
+                    <div class="legend-color" style="background: #f5f5f5;"></div>
+                    <span>Sem dados</span>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('legend-content').innerHTML = legendHtml;
+    }
+
+    updateEscolasLegend() {
+        const legendHtml = `
+            <div class="legend-item">
+                <div style="display: flex; align-items: center;">
+                    <div class="legend-color" style="background: #e74c3c;"></div>
+                    <span>Estadual</span>
+                </div>
+            </div>
+            <div class="legend-item">
+                <div style="display: flex; align-items: center;">
+                    <div class="legend-color" style="background: #3498db;"></div>
+                    <span>Municipal</span>
+                </div>
+            </div>
+            <div class="legend-item">
+                <div style="display: flex; align-items: center;">
+                    <div class="legend-color" style="background: #f39c12;"></div>
+                    <span>Federal</span>
+                </div>
+            </div>
+            <div class="legend-item">
+                <div style="display: flex; align-items: center;">
+                    <div class="legend-color" style="background: #9b59b6;"></div>
+                    <span>Privada</span>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('escolas-legend').innerHTML = legendHtml;
+    }
+
+    updateStatus(message, type) {
+        const status = document.getElementById('status');
+        status.textContent = message;
+        status.className = `status ${type}`;
+    }
+
+    formatNumber(num) {
+        return num ? parseInt(num).toLocaleString('pt-BR') : '0';
+    }
+
+    // Métodos públicos para serem chamados do HTML
+    hideTooltip() {
+        d3.selectAll('.tooltip').transition().duration(200).style('opacity', 0);
+    }
+
+    showMunicipioDetailsFromTooltip(cdMun, nomeMunicipio) {
+        const municipioData = this.dadosGerais.find(d => 
+            d.CD_MUN == cdMun || d.Municípios === nomeMunicipio
+        );
+        
+        if (municipioData) {
+            this.showMunicipioDetails(municipioData, nomeMunicipio);
+        }
+    }
+}
+
+// Inicializar aplicação quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', function() {
+    window.App = new CensoEscolarApp();
+});
+
+// Expor métodos globalmente para uso em HTML
+window.App = window.App || {};
